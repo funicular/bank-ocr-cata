@@ -1,0 +1,50 @@
+* KATA
+
+** specification
+[[./bank_ocr_kata.md][bank_ocr_kata.md]]
+
+** generating this cljs+node project
+
+ + Environment used in development:
+
+   #+BEGIN_SRC shell :exports code
+
+   $ java -version
+
+   java version "1.7.0_75"
+   Java(TM) SE Runtime Environment (build 1.7.0_75-b13)
+   Java HotSpot(TM) 64-Bit Server VM (build 24.75-b04, mixed mode)
+
+
+   $ lein -v
+   Leiningen 2.6.1 on Java 1.7.0_75 Java HotSpot(TM) 64-Bit Server VM
+
+   #+END_SRC
+
+
+ + [[https://github.com/malyn/figwheel-node-template][figwheel-node-template]]
+
+   #+BEGIN_SRC shell :exports code
+
+    lein new figwheel-node bank-ocr-cata
+    cd bank-ocr-cata
+    npm install
+
+   #+END_SRC
+
+** tools
+
++ [[https://github.com/bhauman/lein-figwheel][lein-figwheel]]
+
++ [[https://github.com/bhauman/lein-figwheel/wiki/Using-the-Figwheel-REPL-within-NRepl][using emacs with figwheel]]
+
+
+** development
+
+To start development, open a REPL using provided project.clj . 
+Then type `(dev)` and follow instructions that will show in the REPL.
+
+
+
+
+
