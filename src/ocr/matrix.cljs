@@ -74,7 +74,7 @@
                      coerce))))))
 
   (t/testing "new-pattern-seq*"
-    (let [scan-matrix (new-scan-matrix (d/new-ocr-reader d/dictionary-raw-data))
+    (let [scan-matrix (new-scan-matrix (d/new-ocr-reader md/dictionary-raw-data))
           mat-seq (new-pattern-seq scan-matrix (new-pattern 3 3))]
       (t/is (= (first mat-seq)
                [" _ "
