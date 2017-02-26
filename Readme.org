@@ -44,6 +44,18 @@
 To start development, open a REPL using provided project.clj . 
 Then type `(dev)` and follow instructions that will show in the REPL.
 
+1. start repl 
+2. (dev)
+3. when you see these last lines 
+```
+Successfully compiled "target/server_dev/bank_ocr_cata.js" in 18.92 seconds.
+Type in a new terminal: "node target/server_dev/bank_ocr_cata.js" 
+... and then type in the repl: "(cljs-repl)" 
+nil
+
+```
+4. open a new terminal and enter "node target/server_dev/bank_ocr_cata.js"
+5. insert in this REPL: "(cljs-repl)"
 
 
 

@@ -1,90 +1,38 @@
 (ns bank-ocr-cata.core
   (:require [cljs.nodejs :as nodejs]
-            [ocr.protocols :as p]
-            [ocr.matrix :as m]
-            [ocr.data :as d]
+            [ocr.api :as ocr-api]
+            [ocr.coercer :as c]
             [bank-ocr-cata.mocks.data :as md]
-            [clojure.string :as str]
-            [cljs.test  :as t]))
+            [clojure.string :as str]))
 
 (nodejs/enable-util-print!)
 
 (defn -main []
-  (println "Hello world!"))
+  (do
+    (println "Hello bank-ocr-cata kata!")
+    (println "------------")
+    (println "User story 1. "   "write a program that can take this file and parse it into actual account numbers.")
+    (println "== 0123456789  =>"  (= "0123456789"
+                                     (let [d (ocr-api/new-dictionary md/dictionary-raw-data)] 
+                                       (ocr-api/translate md/dictionary-raw-data d))))
+    (println "------------")
+    (println "User story 2. "   "validate that the numbers you read are in fact valid account numbers.
+ A valid account number has a valid checksum.")
+    (println "VALID => 457508000: " (ocr-api/checksum? 457508000))
+    (println "INVALID => 457508000: " (not (ocr-api/checksum? 664371495)))
+
+    (println "------------")
+    (println "User story 3. "   "write out a file of your findings, one for each input file")
+
+    (let [d (ocr-api/new-dictionary md/dictionary-raw-data)] 
+      (println "000000000" (= "000000000" (ocr-api/translate md/n-0 d)))
+      (println "111111111 ERR" (= "111111111 ERR" (ocr-api/translate md/n-1 d)))
+      (println "222222222 ERR" (= "222222222 ERR" (ocr-api/translate md/n-2 d)))
+      (println "123456789" (= "123456789" (ocr-api/translate md/n-c d)))
+      (println "49006771? ILL" (= "49006771? ILL" (ocr-api/translate md/ill-1 d)))
+      (println "1234?678? ILL" (= "1234?678? ILL" (ocr-api/translate md/ill-2 d)))
+      (println "664371495 ERR" (= "664371495 ERR" (-> 664371495
+                                                      (c/num->pattern d)
+                                                      (ocr-api/translate d)))))))
 
 (set! *main-cli-fn* -main)
-
-(defn display
-   "just for human eyes :- "
-   [pattern]
-   (println "•   •")
-   (doseq [r pattern]
-     (println (str " " r " ")))
-   (println "•   •"))
-
-(defn read* [seed width height]
-  (let [scan-matrix (m/new-scan-matrix (d/new-ocr-reader seed))
-        ocr-pattern (m/new-pattern width height)]
-    (m/new-pattern-seq scan-matrix ocr-pattern)))
-
-(defn digits-dictionary [seq*]
-  (zipmap seq* (range)))
-
-(defn translate [seq* dict]
-  (map #(get dict % "?") seq*))
-
-(defn parse-digits [raw-data dict]
-  (let [seq* (read* raw-data 3 3)]  
-    (translate seq* dict)))
-
-(defn new-dictionary [raw-data ]
-  (let [seq* (read* raw-data 3 3)]
-    (digits-dictionary seq*)))
-
-
-(t/deftest check-reading
-  (t/testing "with dictionary data"
-    (let [mat-seq (read* md/dictionary-raw-data 3 3)] 
-      (let [n-1 ["   "
-                 "  |"
-                 "  |"]]
-        (t/testing "1 => "(display n-1)
-                   (t/is (= (nth mat-seq 1) n-1))))
-      (let [n-2 [" _ "
-                 " _|"
-                 "|_ "]]
-        (t/testing "2 => "(display n-2)
-                   (t/is (= (nth mat-seq 2) n-2))))
-      (let [n-9 [" _ "
-                 "|_|"
-                 " _|"]]
-        (t/testing "9 => "(display n-9)
-                   (t/is (= (nth mat-seq 9) n-9))))))
-  (t/testing "parse-digits"
-    (let [dict (new-dictionary md/dictionary-raw-data)]
-      (t/is (= '(0 0 0 0 0 0 0 0 0) (parse-digits md/n-0 dict)))
-      (t/is (= '(1 1 1 1 1 1 1 1 1) (parse-digits md/n-1 dict)))
-      (t/is (= '(2 2 2 2 2 2 2 2 2) (parse-digits md/n-2 dict)))
-      (t/is (= '(1 2 3 4 5 6 7 8 9) (parse-digits md/n-c dict)))
-      (t/is (= '(4 9 0 0 6 7 7 1 "?") (parse-digits md/ill-1 dict)))
-      (t/is (= '(1 2 3 4 "?" 6 7 8 "?") (parse-digits md/ill-2 dict))))))
-
-;; checksum
-;;account number:  3  4  5  8  8  2  8  6  5
-;;position names:  d9 d8 d7 d6 d5 d4 d3 d2 d1
-;;checksum calculation: (d1+2*d2+3*d3 +..+9*d9) mod 11 = 0
-
-
-
-
-(t/deftest integrity-data
-  (let [shape [27 27 27]
-        check-fun #(map count (d/ocr-new-lines-data %))]
-    (t/testing (str "final vector size: " shape)
-      (doseq [raw [md/n-1 md/n-2 md/n-c md/ill-1 md/ill-2]]
-        (t/is (= shape (check-fun raw)) raw)))))
-
-
-
-
-(t/run-tests)
