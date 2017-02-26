@@ -1,6 +1,5 @@
 (ns user
-  (:use [figwheel-sidecar.repl-api]
-        [clojure.java.shell :only [sh]]))
+  (:use [figwheel-sidecar.repl-api] ))
 
 (defn dev []
   (start-figwheel!)
