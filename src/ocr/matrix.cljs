@@ -77,13 +77,13 @@
     (let [scan-matrix (new-scan-matrix (d/new-ocr-reader d/dictionary-raw-data))
           mat-seq (new-pattern-seq scan-matrix (new-pattern 3 3))]
       (t/is (= (first mat-seq)
+               [" _ "
+                "| |"
+                "|_|"]))
+      (t/is (= (second mat-seq)
                ["   "
                 "  |"
                 "  |"]))
-      (t/is (= (second mat-seq)
-               [" _ "
-                " _|"
-                "|_ "]))
       (t/is (= (last mat-seq)
                [" _ "
                 "|_|"
