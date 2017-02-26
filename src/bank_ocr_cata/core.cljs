@@ -3,6 +3,7 @@
             [ocr.protocols :as p]
             [ocr.matrix :as m]
             [ocr.data :as d]
+            [bank-ocr-cata.mocks.data :as md]
             [clojure.string :as str]
             [cljs.test  :as t]))
 
@@ -43,7 +44,7 @@
 
 (t/deftest check-reading
   (t/testing "with dictionary data"
-    (let [mat-seq (read* d/dictionary-raw-data 3 3)] 
+    (let [mat-seq (read* md/dictionary-raw-data 3 3)] 
       (let [n-1 ["   "
                  "  |"
                  "  |"]]
@@ -60,18 +61,30 @@
         (t/testing "9 => "(display n-9)
                    (t/is (= (nth mat-seq 9) n-9))))))
   (t/testing "parse-digits"
-    (let [dict (new-dictionary d/dictionary-raw-data)]
-      (t/is (= '(0 0 0 0 0 0 0 0 0) (parse-digits d/n-0 dict)))
-      (t/is (= '(1 1 1 1 1 1 1 1 1) (parse-digits d/n-1 dict)))
-      (t/is (= '(2 2 2 2 2 2 2 2 2) (parse-digits d/n-2 dict)))
-      (t/is (= '(1 2 3 4 5 6 7 8 9) (parse-digits d/n-c dict)))
-      (t/is (= '(4 9 0 0 6 7 7 1 "?") (parse-digits d/ill-1 dict)))
-      (t/is (= '(1 2 3 4 "?" 6 7 8 "?") (parse-digits d/ill-2 dict))))))
+    (let [dict (new-dictionary md/dictionary-raw-data)]
+      (t/is (= '(0 0 0 0 0 0 0 0 0) (parse-digits md/n-0 dict)))
+      (t/is (= '(1 1 1 1 1 1 1 1 1) (parse-digits md/n-1 dict)))
+      (t/is (= '(2 2 2 2 2 2 2 2 2) (parse-digits md/n-2 dict)))
+      (t/is (= '(1 2 3 4 5 6 7 8 9) (parse-digits md/n-c dict)))
+      (t/is (= '(4 9 0 0 6 7 7 1 "?") (parse-digits md/ill-1 dict)))
+      (t/is (= '(1 2 3 4 "?" 6 7 8 "?") (parse-digits md/ill-2 dict))))))
 
 ;; checksum
 ;;account number:  3  4  5  8  8  2  8  6  5
 ;;position names:  d9 d8 d7 d6 d5 d4 d3 d2 d1
 ;;checksum calculation: (d1+2*d2+3*d3 +..+9*d9) mod 11 = 0
+
+
+
+
+(t/deftest integrity-data
+  (let [shape [27 27 27]
+        check-fun #(map count (d/ocr-new-lines-data %))]
+    (t/testing (str "final vector size: " shape)
+      (doseq [raw [md/n-1 md/n-2 md/n-c md/ill-1 md/ill-2]]
+        (t/is (= shape (check-fun raw)) raw)))))
+
+
 
 
 (t/run-tests)
