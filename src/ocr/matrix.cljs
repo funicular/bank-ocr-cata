@@ -1,9 +1,11 @@
 (ns ocr.matrix
   (:require [clojure.core.matrix :as m]
+            [cljs.nodejs :as nodejs]
             [ocr.protocols :as p]
             [ocr.data :as d]
             [clojure.string :as str]
             [cljs.test :refer-macros [deftest is testing run-tests] :as t]))
+(nodejs/enable-util-print!)
 
 (defn new-pos [row* col*]
   (reify
